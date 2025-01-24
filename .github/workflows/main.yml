@@ -8,6 +8,7 @@ on:
     - cron: '0 15 * * 1-6'
     # Executa o script todos os dias às 18h45
     - cron: '45 18 * * 1-6'
+  workflow_dispatch:  # Permite disparar manualmente a execução
 
 jobs:
   run-script:
