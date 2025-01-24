@@ -1,6 +1,7 @@
 name: Notificações Loterias
 
 on:
+  workflow_dispatch:
   schedule:
     # Executa o script todos os dias às 8h
     - cron: '0 8 * * 1-6'
