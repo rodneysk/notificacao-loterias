@@ -1,22 +1,23 @@
-import requests
-import locale
+import requests 
+from locale import setlocale, LC_ALL
 
-# Tenta configurar o locale para garantir a formatação correta
-try:
-    locale.setlocale(locale.LC_ALL, 'pt_BR.UTF-8')
-except locale.Error:
-    # Caso o locale não seja aceito no ambiente, utiliza o padrão
-    print("Aviso: Locale 'pt_BR.UTF-8' não disponível, utilizando o padrão.")
+# Define a localidade para usar o formato de moeda brasileiro
+setlocale(LC_ALL, 'pt_BR.UTF-8')
 
 # Token do seu bot (obtido do BotFather)
 TOKEN = '7896864022:AAFGP_lufIKlGw7t-raj866FuKCAzUWGwSM'
 
 # Chat ID (obtido após enviar a mensagem ao bot)
-CHAT_ID = '1018589617'
+CHAT_ID = '1018589617'  # Substitua com o Chat ID correto
 
+# Função para enviar a mensagem no Telegram
 def enviar_mensagem(mensagem):
     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
-    payload = {'chat_id': CHAT_ID, 'text': mensagem, 'parse_mode': 'HTML'}
+    payload = {
+        'chat_id': CHAT_ID,
+        'text': mensagem,
+        'parse_mode': 'HTML'  # Aqui você define o uso de Markdown
+    }
     response = requests.post(url, data=payload)
     
     if response.status_code == 200:
@@ -72,29 +73,17 @@ def consultar_loterias():
         except Exception as e:
             print(f"Erro ao processar dados da URL {url}: {e}")
 
-# Função para enviar mensagem às 8h
-def mensagem_8h():
-    mensagem = "📅 Bom dia! Não se esqueça de verificar os jogos acumulados para o sorteio de hoje!"
-    enviar_mensagem(mensagem)
+# Enviar a mensagem de "Bom dia" primeiro (às 8h)
+mensagem_bom_dia = "📅 Bom dia! Não se esqueça de verificar os jogos acumulados para o sorteio de hoje!"
+enviar_mensagem(mensagem_bom_dia)
 
-# Função para enviar mensagem às 15h
-def mensagem_15h():
-    mensagem = "📌 Não se esqueça de fazer os jogos acumulados para o(s) sorteio(s) de hoje!"
-    enviar_mensagem(mensagem)
-
-# Função para enviar mensagem às 18h45
-def mensagem_18h45():
-    mensagem = "❗ATENÇÃO ❗\nFaltam 15 minutos para o encerramento dos jogos!"
-    enviar_mensagem(mensagem)
-
-# Chama as funções de acordo com o horário
-def enviar_notificacoes():
-    mensagem_8h()  # Envia a mensagem de 8h
-    mensagem_15h()  # Envia a mensagem de 15h
-    mensagem_18h45()  # Envia a mensagem de 18h45
-
-# Chama a função para consultar as loterias
+# Enviar mensagem de jogos acumulados (às 8h, após "Bom dia")
 consultar_loterias()
 
-# Chama a função para enviar as mensagens programadas
-enviar_notificacoes()
+# Mensagem das 15h
+mensagem_15h = "📌 Não se esqueça de fazer os jogos acumulados para o(s) sorteio(s) de hoje!"
+enviar_mensagem(mensagem_15h)
+
+# Mensagem das 18h45
+mensagem_18h45 = "❗<b>ATENÇÃO</b> ❗\nFaltam 15 minutos para o encerramento dos jogos!"
+enviar_mensagem(mensagem_18h45)
