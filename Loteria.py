@@ -1,23 +1,14 @@
-import requests 
-from locale import setlocale, LC_ALL
+import requests
+import os
+from datetime import datetime
 
-# Define a localidade para usar o formato de moeda brasileiro
-setlocale(LC_ALL, 'pt_BR.UTF-8')
+# Carregar variáveis de ambiente
+TOKEN = os.getenv('TELEGRAM_TOKEN')
+CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
-# Token do seu bot (obtido do BotFather)
-TOKEN = '7896864022:AAFGP_lufIKlGw7t-raj866FuKCAzUWGwSM'
-
-# Chat ID (obtido após enviar a mensagem ao bot)
-CHAT_ID = '1018589617'  # Substitua com o Chat ID correto
-
-# Função para enviar a mensagem no Telegram
 def enviar_mensagem(mensagem):
     url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
-    payload = {
-        'chat_id': CHAT_ID,
-        'text': mensagem,
-        'parse_mode': 'HTML'  # Aqui você define o uso de Markdown
-    }
+    payload = {'chat_id': CHAT_ID, 'text': mensagem, 'parse_mode': 'HTML'}
     response = requests.post(url, data=payload)
     
     if response.status_code == 200:
@@ -25,8 +16,8 @@ def enviar_mensagem(mensagem):
     else:
         print(f"Erro ao enviar a mensagem: {response.status_code}")
 
-# Função para consultar as loterias e enviar notificação se acumularem
-def consultar_loterias():
+# Função para consultar as loterias e enviar mensagem às 8h
+def notificar_8h():
     loterias_urls = [
         'https://loteriascaixa-api.herokuapp.com/api/megasena/latest',
         'https://loteriascaixa-api.herokuapp.com/api/lotofacil/latest',
@@ -58,9 +49,6 @@ def consultar_loterias():
             else:
                 valor_estimado_formatado = "Valor inválido"
 
-            # Exibe os valores para debug (opcional)
-            print(f"Concurso: {concurso}, Loteria: {loteria}, Valor Estimado Próximo Concurso: {valor_estimado_formatado}")
-
             # Se acumulou, enviar mensagem
             if acumulou:
                 mensagem = f"💰 <b>O concurso {loteria} acumulou!</b>\n\n" \
@@ -73,5 +61,26 @@ def consultar_loterias():
         except Exception as e:
             print(f"Erro ao processar dados da URL {url}: {e}")
 
-# Chama a função para consultar as loterias
-consultar_loterias()
+# Função para enviar mensagem das 15h
+def notificar_15h():
+    mensagem_15h = "📌 Não se esqueça de fazer os jogos acumulados para o(s) sorteio(s) de hoje!"
+    enviar_mensagem(mensagem_15h)
+
+# Função para enviar mensagem das 18h45
+def notificar_18h45():
+    mensagem_18h45 = "❗ATENÇÃO ❗\nFaltam 15 minutos para o encerramento dos jogos!"
+    enviar_mensagem(mensagem_18h45)
+
+# Obter a hora atual
+hora_atual = datetime.now().hour
+minuto_atual = datetime.now().minute
+
+# Enviar notificações com base no horário
+if hora_atual == 8 and minuto_atual == 0:
+    notificar_8h()
+elif hora_atual == 15 and minuto_atual == 0:
+    notificar_15h()
+elif hora_atual == 18 and minuto_atual == 45:
+    notificar_18h45()
+else:
+    print("Não é hora de enviar mensagens.")
